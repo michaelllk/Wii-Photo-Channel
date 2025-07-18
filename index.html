@@ -7,29 +7,42 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="game-container">
-        <h1>Wii Photo Puzzle</h1>
-        <div class="controls">
-            <label for="difficulty">Select Difficulty:</label>
-            <select id="difficulty">
-                <option value="6">6 Pieces</option>
-                <option value="12">12 Pieces</option>
-                <option value="24">24 Pieces</option>
-                <option value="36">36 Pieces</option>
-            </select>
-            <button id="startButton">Start Game</button>
-        </div>
-        <div class="puzzle-area">
-            <div id="puzzle-board"></div>
-            <div id="puzzle-solved-overlay" class="hidden">
-                <h2>Puzzle Solved!</h2>
-                <p>Congratulations!</p>
-                <button id="resetButton">Play Again</button>
+    <div class="main-container">
+        <div id="start-screen" class="screen active">
+            <div class="wii-header">Puzzle</div>
+            <div class="image-preview-container">
+                <img src="test.png" alt="Puzzle Preview" class="image-preview">
+            </div>
+            <div class="difficulty-buttons">
+                <button class="difficulty-btn" data-difficulty="6">Pieces: 6</button>
+                <button class="difficulty-btn" data-difficulty="12">Pieces: 12</button>
+                <button class="difficulty-btn" data-difficulty="24">Pieces: 24</button>
+                <button class="difficulty-btn" data-difficulty="48">Pieces: 48</button>
+            </div>
+            <div class="bottom-nav">
+                <button id="backButton" class="nav-button">Back</button>
+                <button id="viewRecordsButton" class="nav-button">View records</button>
             </div>
         </div>
-        <div class="timer">Time: <span id="time">00:00</span></div>
+
+        <div id="game-screen" class="screen hidden">
+            <div class="wii-header">Puzzle</div>
+            <div class="puzzle-area">
+                <div id="puzzle-board"></div>
+                <div id="puzzle-solved-overlay" class="hidden">
+                    <div class="solved-content">
+                        <p class="congratulations-text">Congratulations!<br>It's a new record!</p>
+                        <p class="time-finished">You finished in <span id="final-time">00:00:00</span>.</p>
+                        <button id="continueButton" class="nav-button">Continue</button>
+                    </div>
+                </div>
+            </div>
+            <div class="game-info">
+                <div class="timer">Time: <span id="time">00:00:00</span></div>
+            </div>
+        </div>
     </div>
 
     <script src="script.js"></script>
 </body>
-              </html>
+</html>
