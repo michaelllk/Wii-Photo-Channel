@@ -1,68 +1,185 @@
+}:root {
+    /* Wii-like brown/beige background */
+    --wii-bg-color: #d1b892;
+    /* Darker brown for header/footer */
+    --wii-dark-brown: #a08465;
+    /* Button gradients */
+    --btn-gradient-start: #7a5e43;
+    --btn-gradient-end: #4e3a2b;
+    /* Button hover */
+    --btn-hover-start: #8f6f4f;
+    --btn-hover-end: #5e4836;
+    /* Text colors */
+    --wii-text-light: #fff;
+    --wii-text-dark: #333;
+}
+
 body {
-    font-family: 'Arial', sans-serif;
+    font-family: 'Nintendo Wii Text', sans-serif; /* Placeholder, will default to sans-serif */
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    background-color: #e0e0e0;
+    background-color: var(--wii-bg-color);
+    background-image: url('placeholder-background.jpg'); /* Replace with your background image */
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
     margin: 0;
-    color: #333;
+    color: var(--wii-text-dark);
+    overflow: hidden; /* Prevent scrollbar if elements slightly exceed view */
 }
 
-.game-container {
-    background-color: #ffffff;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    padding: 30px;
-    text-align: center;
-    max-width: 90%;
-    width: 600px; /* Base width for the game area */
-}
-
-h1 {
-    color: #007bff;
-    margin-bottom: 20px;
-}
-
-.controls {
-    margin-bottom: 20px;
+/* Base container for the whole game */
+.main-container {
+    background-color: transparent; /* Main container is transparent, body handles background */
+    width: 800px; /* Adjust to match Wii screen aspect ratio, 800x480 for 16:9, or 640x480 for 4:3 */
+    max-width: 95vw; /* Max width for mobile responsiveness */
+    height: 480px; /* Fixed height to mimic Wii */
+    max-height: 95vh;
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    box-sizing: border-box;
+    position: relative; /* For absolute positioning of screens */
+}
+
+/* Screen visibility management */
+.screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 15px;
+    box-sizing: border-box;
+    padding-top: 20px; /* General top padding */
+    padding-bottom: 20px; /* General bottom padding */
 }
 
-label {
+.screen.hidden {
+    display: none;
+}
+
+/* Wii Header */
+.wii-header {
+    background-color: var(--wii-dark-brown);
+    color: var(--wii-text-light);
+    font-size: 2em;
     font-weight: bold;
+    width: 100%;
+    padding: 10px 0;
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    box-sizing: border-box;
+    z-index: 1; /* Ensure it's above other content if necessary */
+    position: absolute;
+    top: 0;
+    left: 0;
 }
 
-select, button {
-    padding: 10px 15px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    font-size: 16px;
+/* Start Screen Specific Styles */
+#start-screen {
+    justify-content: space-between; /* Space out header, image, buttons, nav */
+}
+
+.image-preview-container {
+    background-color: #f0f0f0; /* Light background for the preview image frame */
+    border: 2px solid #ccc;
+    box-shadow: inset 0 0 5px rgba(0,0,0,0.1);
+    padding: 5px; /* Padding around the image */
+    margin-top: 70px; /* Space below header */
+}
+
+.image-preview {
+    max-width: 150px; /* Size of the preview image */
+    max-height: 110px;
+    display: block;
+    border: 1px solid #aaa; /* Inner border for the image */
+}
+
+.difficulty-buttons {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    width: 80%; /* Adjust width to fit */
+    max-width: 350px; /* Limit max width of buttons grid */
+    margin-top: 20px;
+}
+
+.difficulty-btn {
+    padding: 15px 10px;
+    border: 2px solid #3d2a1d; /* Dark border */
+    border-radius: 8px;
+    font-size: 1.1em;
+    font-weight: bold;
+    color: var(--wii-text-light);
+    background: linear-gradient(to bottom, var(--btn-gradient-start), var(--btn-gradient-end));
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: all 0.2s ease;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
 }
 
-button {
-    background-color: #007bff;
-    color: white;
-    border: none;
+.difficulty-btn:hover {
+    background: linear-gradient(to bottom, var(--btn-hover-start), var(--btn-hover-end));
+    transform: translateY(-2px);
+    box-shadow: 0 6px 8px rgba(0,0,0,0.4);
 }
 
-button:hover {
-    background-color: #0056b3;
+.bottom-nav {
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
+    background-color: var(--wii-dark-brown);
+    padding: 10px 0;
+    box-shadow: 0 -2px 5px rgba(0,0,0,0.2);
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    box-sizing: border-box;
+}
+
+.nav-button {
+    padding: 10px 20px;
+    border: 2px solid #3d2a1d;
+    border-radius: 8px;
+    font-size: 1.1em;
+    font-weight: bold;
+    color: var(--wii-text-light);
+    background: linear-gradient(to bottom, var(--btn-gradient-start), var(--btn-gradient-end));
+    box-shadow: 0 3px 5px rgba(0,0,0,0.2);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+    min-width: 120px; /* Ensure buttons have a minimum width */
+    text-align: center;
+}
+
+.nav-button:hover {
+    background: linear-gradient(to bottom, var(--btn-hover-start), var(--btn-hover-end));
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+}
+
+
+/* Game Screen Specific Styles */
+#game-screen {
+    justify-content: flex-start; /* Align content from top */
+    padding-top: 70px; /* Space for the header */
 }
 
 .puzzle-area {
     position: relative;
-    width: 500px; /* This will be the base size of our puzzle area */
-    height: 500px; /* This will be the base size of our puzzle area */
-    margin: 0 auto 20px auto;
-    border: 2px solid #ccc;
-    box-sizing: content-box; /* Important for calculating piece sizes */
-    background-color: #f0f0f0; /* Placeholder for when no image is loaded */
+    width: 480px; /* This will be the base size of our puzzle area (e.g., 4:3 aspect if image is 4:3) */
+    height: 360px; /* This will be the base size of our puzzle area */
+    margin: 20px auto; /* Space from header and info */
+    border: 3px solid var(--wii-dark-brown); /* Stronger border for the puzzle board */
+    box-sizing: content-box;
+    background-color: #f0f0f0;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
+    flex-shrink: 0; /* Prevent it from shrinking */
 }
 
 #puzzle-board {
@@ -73,11 +190,10 @@ button:hover {
 
 .puzzle-piece {
     border: 1px solid rgba(0, 0, 0, 0.1); /* Subtle border between pieces */
-    box-sizing: border-box; /* Ensure border is inside the piece dimensions */
-    background-size: cover; /* Important for image parts */
+    box-sizing: border-box;
     cursor: grab;
-    transition: transform 0.1s ease-out; /* For drag feedback */
-    position: relative; /* For absolutely positioning the image background */
+    position: relative;
+    overflow: hidden; /* Ensure background doesn't bleed */
 }
 
 .puzzle-piece.dragging {
@@ -87,28 +203,75 @@ button:hover {
 }
 
 .puzzle-piece.highlight {
-    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.5); /* Highlight potential drop target */
+    box-shadow: inset 0 0 0 3px #007bff; /* Highlight potential drop target inside piece */
 }
 
+/* Solved Overlay Styles */
 #puzzle-solved-overlay {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(255, 255, 255, 0.9);
+    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black background */
     display: flex;
-    flex-direction: column;
     justify-content: center;
     align-items: center;
-    color: #007bff;
-    font-size: 1.5em;
-    font-weight: bold;
-    border-radius: 8px;
+    z-index: 10; /* Above puzzle pieces */
 }
 
 #puzzle-solved-overlay.hidden {
     display: none;
+}
+
+.solved-content {
+    background-color: rgba(255, 255, 255, 0.85); /* Semi-transparent white box */
+    border-radius: 15px;
+    padding: 30px;
+    text-align: center;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.5);
+    max-width: 400px;
+    width: 90%;
+    color: var(--wii-text-dark); /* Ensure text is readable on light background */
+}
+
+.congratulations-text {
+    font-size: 1.8em;
+    font-weight: bold;
+    color: #007bff; /* Blue color for congrats */
+    margin-bottom: 15px;
+    line-height: 1.2;
+}
+
+.time-finished {
+    font-size: 1.5em;
+    color: var(--wii-text-dark);
+    margin-bottom: 25px;
+}
+
+#final-time {
+    font-weight: bold;
+    color: #cc0000; /* Red color for time */
+}
+
+#continueButton {
+    /* Uses .nav-button styles */
+    margin-top: 20px;
+}
+
+.game-info {
+    width: 100%;
+    padding: 10px 0;
+    text-align: center;
+    font-size: 1.2em;
+    color: var(--wii-text-dark);
+    font-weight: bold;
+    background-color: rgba(255, 255, 255, 0.7); /* Slightly transparent white for timer area */
+    border-top: 1px solid #ccc;
+    position: absolute; /* Stick to bottom of game-screen */
+    bottom: 0;
+    left: 0;
+    box-sizing: border-box;
 }
 
 .timer {
@@ -116,3 +279,14 @@ button:hover {
     font-weight: bold;
     color: #555;
 }
+
+/* Custom Font - If you find a Wii-like font, include it like this */
+/*
+@font-face {
+    font-family: 'Nintendo Wii Text';
+    src: url('path/to/your/WiiText.woff2') format('woff2'),
+         url('path/to/your/WiiText.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+*/
