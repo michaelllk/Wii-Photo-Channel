@@ -1,9 +1,13 @@
+const startScreen = document.getElementById('start-screen');
+const gameScreen = document.getElementById('game-screen');
+const difficultyButtons = document.querySelectorAll('.difficulty-btn');
+const backButton = document.getElementById('backButton'); // Non-functional but present
+const viewRecordsButton = document.getElementById('viewRecordsButton'); // Non-functional but present
 const puzzleBoard = document.getElementById('puzzle-board');
-const difficultySelect = document.getElementById('difficulty');
-const startButton = document.getElementById('startButton');
-const resetButton = document.getElementById('resetButton');
 const timeDisplay = document.getElementById('time');
 const puzzleSolvedOverlay = document.getElementById('puzzle-solved-overlay');
+const finalTimeDisplay = document.getElementById('final-time');
+const continueButton = document.getElementById('continueButton');
 
 const IMAGE_PATH = 'test.png'; // Assuming test.png is in the root
 
@@ -11,7 +15,7 @@ let pieces = [];
 let shuffledPieces = [];
 let timerInterval;
 let startTime;
-let currentDifficulty = 6; // Default to 6 pieces
+let currentDifficulty = 0; // Will be set by button click
 
 let draggedPiece = null;
 let dropTarget = null;
@@ -22,29 +26,52 @@ let dropTarget = null;
 const puzzleImage = new Image();
 puzzleImage.src = IMAGE_PATH;
 puzzleImage.onload = () => {
-    // Image loaded, now we can proceed with game setup
-    startButton.disabled = false; // Enable start button once image is ready
+    // Image loaded, now ensure initial screen is correct
+    showScreen('start');
 };
 puzzleImage.onerror = () => {
     console.error("Error loading puzzle image. Make sure 'test.png' is in the root directory.");
-    alert("Could not load puzzle image. Please check the 'test.png' file.");
-    startButton.disabled = true;
+    alert("Could not load puzzle image. Please check the 'test.png' file and refresh.");
+    // Disable buttons if image fails to load
+    difficultyButtons.forEach(button => button.disabled = true);
 };
 
-startButton.addEventListener('click', startGame);
-resetButton.addEventListener('click', resetGame);
-difficultySelect.addEventListener('change', (event) => {
-    currentDifficulty = parseInt(event.target.value);
-    resetGame(); // Reset game when difficulty changes
+// --- Event Listeners ---
+
+difficultyButtons.forEach(button => {
+    button.addEventListener('click', (event) => {
+        currentDifficulty = parseInt(event.target.dataset.difficulty);
+        startGame();
+    });
 });
+
+continueButton.addEventListener('click', resetGame);
+
+// Non-functional buttons, for replica appearance only
+backButton.addEventListener('click', () => {
+    console.log("Back button clicked (non-functional for replica).");
+    // Optionally: You could make this go back to a 'main menu' if you expand the game.
+});
+viewRecordsButton.addEventListener('click', () => {
+    console.log("View records button clicked (non-functional for replica).");
+    // Optionally: You could display a simple 'records' screen here.
+});
+
+
+// --- Screen Management ---
+function showScreen(screenId) {
+    startScreen.classList.add('hidden');
+    gameScreen.classList.add('hidden');
+    document.getElementById(`${screenId}-screen`).classList.remove('hidden');
+}
+
 
 // --- Core Game Functions ---
 
 function startGame() {
-    startButton.disabled = true;
-    difficultySelect.disabled = true;
+    showScreen('game');
     puzzleSolvedOverlay.classList.add('hidden');
-    timeDisplay.textContent = '00:00';
+    timeDisplay.textContent = '00:00:00';
     clearTimeout(timerInterval); // Clear any existing timer
 
     createPuzzlePieces(currentDifficulty);
@@ -54,10 +81,9 @@ function startGame() {
 }
 
 function resetGame() {
-    startButton.disabled = false;
-    difficultySelect.disabled = false;
+    showScreen('start'); // Go back to start screen
     puzzleSolvedOverlay.classList.add('hidden');
-    timeDisplay.textContent = '00:00';
+    timeDisplay.textContent = '00:00:00';
     clearTimeout(timerInterval);
     puzzleBoard.innerHTML = ''; // Clear the board
     pieces = [];
@@ -81,26 +107,36 @@ function createPuzzlePieces(numPieces) {
         cols = 6; rows = 4;
     } else if (numPieces === 36) {
         cols = 6; rows = 6;
+    } else if (numPieces === 48) { // Added for 48 pieces
+        cols = 8; rows = 6;
     } else {
         console.error("Invalid number of pieces:", numPieces);
         return;
     }
 
-    const pieceWidth = imageWidth / cols;
-    const pieceHeight = imageHeight / rows;
+    // Set dynamic dimensions for the puzzle area based on image aspect ratio
+    const aspectRatio = imageWidth / imageHeight;
+    // Aim for a consistent width for the puzzle area, e.g., 480px,
+    // and adjust height based on aspect ratio
+    const puzzleAreaWidth = 480; // Defined in CSS, use here for calculation consistency
+    puzzleBoard.style.width = `${puzzleAreaWidth}px`;
+    puzzleBoard.style.height = `${puzzleAreaWidth / aspectRatio}px`;
+    document.querySelector('.puzzle-area').style.width = `${puzzleAreaWidth}px`;
+    document.querySelector('.puzzle-area').style.height = `${puzzleAreaWidth / aspectRatio}px`;
+
+
+    // The natural dimensions of the piece in the original image
+    const originalPieceWidth = imageWidth / cols;
+    const originalPieceHeight = imageHeight / rows;
 
     for (let r = 0; r < rows; r++) {
         for (let c = 0; c < cols; c++) {
             const index = r * cols + c;
             pieces.push({
                 id: index,
-                originalIndex: index,
-                x: c,
-                y: r,
-                width: pieceWidth,
-                height: pieceHeight,
-                backgroundPositionX: -c * pieceWidth,
-                backgroundPositionY: -r * pieceHeight
+                originalIndex: index, // Store original position for win condition
+                backgroundPositionX: -c * originalPieceWidth, // Negative for background-position
+                backgroundPositionY: -r * originalPieceHeight
             });
         }
     }
@@ -108,14 +144,6 @@ function createPuzzlePieces(numPieces) {
     // Set grid template for CSS dynamically
     puzzleBoard.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
     puzzleBoard.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
-
-    // Adjust puzzle-area dimensions based on image aspect ratio and base width
-    const aspectRatio = imageWidth / imageHeight;
-    const basePuzzleWidth = 500; // From CSS
-    puzzleBoard.style.width = `${basePuzzleWidth}px`;
-    puzzleBoard.style.height = `${basePuzzleWidth / aspectRatio}px`;
-    document.querySelector('.puzzle-area').style.width = `${basePuzzleWidth}px`;
-    document.querySelector('.puzzle-area').style.height = `${basePuzzleWidth / aspectRatio}px`;
 }
 
 function shufflePieces() {
@@ -129,30 +157,19 @@ function shufflePieces() {
 
 function renderPuzzle() {
     puzzleBoard.innerHTML = ''; // Clear existing pieces
+    const cols = parseInt(puzzleBoard.style.gridTemplateColumns.split(' ').length);
+    const rows = parseInt(puzzleBoard.style.gridTemplateRows.split(' ').length);
+
     shuffledPieces.forEach(piece => {
         const pieceElement = document.createElement('div');
         pieceElement.classList.add('puzzle-piece');
-        pieceElement.setAttribute('data-id', piece.id);
+        pieceElement.setAttribute('data-id', piece.id); // Store the original piece ID
         pieceElement.setAttribute('draggable', true);
 
-        // Calculate background position relative to the piece element's size
-        // We'll use background-size: cover in CSS, but position needs to be correct.
-        // This is a bit tricky with `background-size: cover` and dynamically sized pieces.
-        // The most robust way is to set the background-image directly on the piece,
-        // and calculate background-position as percentage of the *original image* size
-        // which then scales correctly with `background-size: 1000% 1000%` or similar
-        // depending on the number of rows/columns.
-        // For a replica, we'll set the image once on the main board and use clip-path or
-        // a more complex background-position/size approach.
-        // A simpler replica approach: each piece is its own `div` with the full image
-        // as background, and background-position moves the visible part.
-
-        const cols = Math.sqrt(currentDifficulty === 6 ? 6/ (puzzleImage.naturalWidth / puzzleImage.naturalHeight) : currentDifficulty === 12 ? 4 : currentDifficulty === 24 ? 6 : 6); // Approximation
-        const rows = currentDifficulty / cols;
-
+        // Set background image and position
         pieceElement.style.backgroundImage = `url(${IMAGE_PATH})`;
-        pieceElement.style.backgroundSize = `${cols * 100}% ${rows * 100}%`; // Make the background image span the whole grid virtually
-        pieceElement.style.backgroundPosition = `${piece.backgroundPositionX / puzzleImage.naturalWidth * 100}% ${piece.backgroundPositionY / puzzleImage.naturalHeight * 100}%`;
+        pieceElement.style.backgroundSize = `${cols * 100}% ${rows * 100}%`; // Scale background to fit the whole grid
+        pieceElement.style.backgroundPosition = `${piece.backgroundPositionX}px ${piece.backgroundPositionY}px`;
 
         pieceElement.addEventListener('dragstart', handleDragStart);
         pieceElement.addEventListener('dragover', handleDragOver);
@@ -197,18 +214,25 @@ function handleDragLeave(e) {
 function handleDrop(e) {
     e.preventDefault();
     if (dropTarget && draggedPiece && dropTarget !== draggedPiece) {
-        const draggedId = parseInt(draggedPiece.dataset.id);
-        const dropTargetId = parseInt(dropTarget.dataset.id);
+        const draggedId = parseInt(draggedPiece.dataset.id); // Original ID of the dragged piece
+        const dropTargetId = parseInt(dropTarget.dataset.id); // Original ID of the drop target piece
 
-        const draggedIndex = shuffledPieces.findIndex(p => p.id === draggedId);
-        const dropTargetIndex = shuffledPieces.findIndex(p => p.id === dropTargetId);
+        // Find the actual piece objects in shuffledPieces array
+        const draggedObject = shuffledPieces.find(p => p.id === draggedId);
+        const dropTargetObject = shuffledPieces.find(p => p.id === dropTargetId);
 
-        // Swap the pieces in our shuffledPieces array
-        [shuffledPieces[draggedIndex], shuffledPieces[dropTargetIndex]] =
-        [shuffledPieces[dropTargetIndex], shuffledPieces[draggedIndex]];
+        if (draggedObject && dropTargetObject) {
+            // Swap the 'originalIndex' values for the actual piece objects,
+            // or more simply, swap the objects themselves in the shuffled array
+            const draggedCurrentIndex = shuffledPieces.indexOf(draggedObject);
+            const dropTargetCurrentIndex = shuffledPieces.indexOf(dropTargetObject);
 
-        renderPuzzle(); // Re-render the puzzle to reflect the swap
-        checkWinCondition();
+            [shuffledPieces[draggedCurrentIndex], shuffledPieces[dropTargetCurrentIndex]] =
+            [shuffledPieces[dropTargetCurrentIndex], shuffledPieces[draggedCurrentIndex]];
+
+            renderPuzzle(); // Re-render the puzzle to reflect the visual swap
+            checkWinCondition();
+        }
     }
     if (dropTarget) {
         dropTarget.classList.remove('highlight');
@@ -232,12 +256,17 @@ function handleDragEnd(e) {
 // --- Game State Check ---
 
 function checkWinCondition() {
-    const isSolved = shuffledPieces.every((piece, index) => piece.originalIndex === index);
+    // Check if current order of IDs matches their original positions
+    const isSolved = shuffledPieces.every((piece, index) => {
+        // The piece at 'index' in the shuffled array should have an 'originalIndex' of 'index'
+        return piece.originalIndex === index;
+    });
+
     if (isSolved) {
         clearTimeout(timerInterval);
+        const finalTime = timeDisplay.textContent;
+        finalTimeDisplay.textContent = finalTime; // Update final time on overlay
         puzzleSolvedOverlay.classList.remove('hidden');
-        startButton.disabled = false;
-        difficultySelect.disabled = false;
     }
 }
 
@@ -245,16 +274,18 @@ function checkWinCondition() {
 
 function startTimer() {
     startTime = Date.now();
-    timerInterval = setInterval(updateTimer, 1000);
+    timerInterval = setInterval(updateTimer, 10); // Update every 10ms for hundredths
 }
 
 function updateTimer() {
     const elapsedTime = Date.now() - startTime;
     const minutes = Math.floor(elapsedTime / 60000);
     const seconds = Math.floor((elapsedTime % 60000) / 1000);
+    const hundredths = Math.floor((elapsedTime % 1000) / 10); // Get hundredths of a second
 
     const formattedMinutes = String(minutes).padStart(2, '0');
     const formattedSeconds = String(seconds).padStart(2, '0');
+    const formattedHundredths = String(hundredths).padStart(2, '0');
 
-    timeDisplay.textContent = `${formattedMinutes}:${formattedSeconds}`;
-  }
+    timeDisplay.textContent = `${formattedMinutes}:${formattedSeconds}:${formattedHundredths}`;
+                                                             }
