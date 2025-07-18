@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wii Photo Puzzle</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="game-container">
+        <h1>Wii Photo Puzzle</h1>
+        <div class="controls">
+            <label for="difficulty">Select Difficulty:</label>
+            <select id="difficulty">
+                <option value="6">6 Pieces</option>
+                <option value="12">12 Pieces</option>
+                <option value="24">24 Pieces</option>
+                <option value="36">36 Pieces</option>
+            </select>
+            <button id="startButton">Start Game</button>
+        </div>
+        <div class="puzzle-area">
+            <div id="puzzle-board"></div>
+            <div id="puzzle-solved-overlay" class="hidden">
+                <h2>Puzzle Solved!</h2>
+                <p>Congratulations!</p>
+                <button id="resetButton">Play Again</button>
+            </div>
+        </div>
+        <div class="timer">Time: <span id="time">00:00</span></div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+              </html>
